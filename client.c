@@ -12,15 +12,15 @@ int main(void) {
 	//print det den får tilbake
 	struct addrinfo hints;
 	struct addrinfo* server_info;
+	int status;
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE; 
 	char* server_ip = "192.168.0.16";
 
-	if (getaddrinfo(server_ip, "8777", &hints, &server_info) != 0) {
-		perror("getaddrinfo");
+	if ((status = getaddrinfo(server_ip, "8777", &hints, &server_info)) != 0) {
+		fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
 		return EXIT_FAILURE;
 	}
 	freeaddrinfo(server_info);
