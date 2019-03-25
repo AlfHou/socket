@@ -4,6 +4,10 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
+#include <netinet/in.h>
+#include <unistd.h>
+
+#define MYPORT "8777"
 
 int main(void) {
 	//Lytt på port x
@@ -17,7 +21,7 @@ int main(void) {
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	if ((status = getaddrinfo(NULL, "8777", &hints, &server_info)) != 0) {
+	if ((status = getaddrinfo(NULL, MYPORT, &hints, &server_info)) != 0) {
 		fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
 		return EXIT_FAILURE;
 	}
@@ -31,9 +35,31 @@ int main(void) {
 		perror("Bind");
 		return EXIT_FAILURE;
 	}
+	printf("Listening...\n");
+	if (listen(my_socket, 10) != 0) {
+		perror("Listen");
+		return EXIT_FAILURE;
+	}
 	
+	struct sockaddr_storage incoming_packet;
+	int new_socket_descriptor;
+	
+	socklen_t packet_size = sizeof(incoming_packet);
+	new_socket_descriptor = accept(my_socket, (struct sockaddr*) &incoming_packet, &packet_size);  
+	if (new_socket_descriptor == -1) {
+		perror("Accept");
+		return EXIT_FAILURE;
+	}
+	char buffer[1028];
+	memset(buffer, 0, sizeof(char)); 
 
-
+	if (recv(new_socket_descriptor, buffer, sizeof(buffer), 0) == -1) {
+		perror("Receive");
+		return EXIT_FAILURE;
+	}
+	printf("%s\n", buffer);
+	close(new_socket_descriptor);
+	close(my_socket);
 	freeaddrinfo(server_info);
 	return EXIT_SUCCESS;
 }
