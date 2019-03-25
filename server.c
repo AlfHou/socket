@@ -23,24 +23,25 @@ int main(void) {
 
 	if ((status = getaddrinfo(NULL, MYPORT, &hints, &server_info)) != 0) {
 		fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 
 	int my_socket = socket(server_info -> ai_family, server_info -> ai_socktype,
 		server_info -> ai_protocol);
 	if (my_socket == -1) {
 		perror("Socket");
+		exit(EXIT_FAILURE);
 	}
 	if (bind(my_socket, server_info -> ai_addr, server_info -> ai_addrlen) == -1) {
 		close(my_socket);
 		perror("Bind");
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 	printf("Listening...\n");
 	if (listen(my_socket, 10) != 0) {
 		close(my_socket);
 		perror("Listen");
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 	
 	struct sockaddr_storage incoming_packet;
@@ -51,7 +52,7 @@ int main(void) {
 	if (new_socket_descriptor == -1) {
 		close(my_socket);
 		perror("Accept");
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 	char buffer[512];
 	memset(buffer, 0, sizeof(char)); 
@@ -60,7 +61,7 @@ int main(void) {
 		close(new_socket_descriptor);
 		close(my_socket);
 		perror("Receive");
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 	}
 	printf("%s", buffer);
 	close(new_socket_descriptor);
