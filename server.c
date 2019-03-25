@@ -32,11 +32,13 @@ int main(void) {
 		perror("Socket");
 	}
 	if (bind(my_socket, server_info -> ai_addr, server_info -> ai_addrlen) == -1) {
+		close(my_socket);
 		perror("Bind");
 		return EXIT_FAILURE;
 	}
 	printf("Listening...\n");
 	if (listen(my_socket, 10) != 0) {
+		close(my_socket);
 		perror("Listen");
 		return EXIT_FAILURE;
 	}
@@ -47,17 +49,20 @@ int main(void) {
 	socklen_t packet_size = sizeof(incoming_packet);
 	new_socket_descriptor = accept(my_socket, (struct sockaddr*) &incoming_packet, &packet_size);  
 	if (new_socket_descriptor == -1) {
+		close(my_socket);
 		perror("Accept");
 		return EXIT_FAILURE;
 	}
-	char buffer[1028];
+	char buffer[512];
 	memset(buffer, 0, sizeof(char)); 
 
 	if (recv(new_socket_descriptor, buffer, sizeof(buffer), 0) == -1) {
+		close(new_socket_descriptor);
+		close(my_socket);
 		perror("Receive");
 		return EXIT_FAILURE;
 	}
-	printf("%s\n", buffer);
+	printf("%s", buffer);
 	close(new_socket_descriptor);
 	close(my_socket);
 	freeaddrinfo(server_info);
