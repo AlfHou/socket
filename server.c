@@ -10,9 +10,6 @@
 #define MYPORT "8777"
 
 int main(void) {
-	//Lytt på port x
-	//Hvis den mottar en pakke, print innholdet i pakken osv
-	//Send en beskjed tilbake til den ip addressen som sendte noe
 	struct addrinfo hints;
 	struct addrinfo* server_info;
 	int status;
