@@ -19,9 +19,8 @@ int get_socket_file_desc(char* server_ip, char* port, struct addrinfo** server_i
 		fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
 		exit(EXIT_FAILURE);
 	}
-	struct addrinfo* tmp = *server_info;
-	int target_socket = socket(tmp -> ai_family, tmp -> ai_socktype,
-		tmp -> ai_protocol);
+	int target_socket = socket((*server_info) -> ai_family, (*server_info) -> ai_socktype,
+		(*server_info) -> ai_protocol);
 	if (target_socket == -1) {
 		perror("Socket");
 		exit(EXIT_FAILURE);
