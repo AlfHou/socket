@@ -4,3 +4,5 @@
 !makefile
 !.gitignore
 !README.md
+!logger.c
+!logger.h

@@ -67,7 +67,6 @@ int main(int argc, char* argv[]) {
 		perror("Connect");
 		exit(EXIT_FAILURE);
 	}
-
 	send_message(target_socket);
 
 	LOG(LOGGER_DEBUG, "Closing socket %d", target_socket);

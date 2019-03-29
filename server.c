@@ -6,6 +6,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #include "logger.h"
 #define MYPORT "8777"
@@ -41,6 +42,14 @@ int get_port(struct addrinfo** server_info) {
 	return my_socket;
 
 }
+void* get_in_addr(struct sockaddr* incoming_packet) {
+	if (incoming_packet -> sa_family == AF_INET) {
+		LOG(LOGGER_DEBUG, "Connection of type IPv4");
+		return &(((struct sockaddr_in*)incoming_packet) -> sin_addr);
+	}
+	LOG(LOGGER_DEBUG, "Connection of type IPv6");
+	return &(((struct sockaddr_in6*)incoming_packet) -> sin6_addr);
+}
 void get_packet(int my_socket) {
 	struct sockaddr_storage incoming_packet;
 	int new_socket_descriptor;
@@ -53,6 +62,9 @@ void get_packet(int my_socket) {
 		perror("Accept");
 		exit(EXIT_FAILURE);
 	}
+	char incoming_ip[16]; 
+	inet_ntop(incoming_packet.ss_family, get_in_addr((struct sockaddr*) &incoming_packet), incoming_ip, sizeof(incoming_ip));
+
 	LOG(LOGGER_DEBUG, "Getting packet on socket %d", new_socket_descriptor);
 	char buffer[512];
 	memset(buffer, 0, sizeof(char)); 
@@ -62,8 +74,9 @@ void get_packet(int my_socket) {
 		perror("Receive");
 		exit(EXIT_FAILURE);
 	}
+
 	LOG(LOGGER_DEBUG, "Successfully got packet");
-	printf("%s", buffer);
+	printf("%s: %s", incoming_ip, buffer);
 	LOG(LOGGER_DEBUG, "Closing temporary socket %d", new_socket_descriptor);
 	close(new_socket_descriptor);
 
